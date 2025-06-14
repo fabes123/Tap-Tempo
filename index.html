@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tap Tempo BPM Calculator</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+    .value { font-size: 2em; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <h1>Tap Tempo BPM Calculator</h1>
+  <p>Tap the <strong>space bar</strong> to calculate tempo</p>
+  <div class="value" id="bpm">BPM: --</div>
+  <div class="value" id="avgBpm">Avg BPM: --</div>
+  <div class="value" id="noteTimes">Note Values: --</div>
+  <button onclick="reset()">Reset</button>
+
+  <script>
+    let times = [];
+    document.addEventListener('keydown', function (e) {
+      if (e.code === 'Space') {
+        const now = Date.now();
+        times.push(now);
+        if (times.length > 2) {
+          const intervals = times.slice(1).map((t, i) => t - times[i]);
+          const bpm = 60000 / intervals[intervals.length - 1];
+          const avgBpm = 60000 / (intervals.reduce((a, b) => a + b) / intervals.length);
+          document.getElementById('bpm').textContent = `BPM: ${bpm.toFixed(1)}`;
+          document.getElementById('avgBpm').textContent = `Avg BPM: ${avgBpm.toFixed(1)}`;
+
+          const quarter = 60000 / avgBpm;
+          const eighth = quarter / 2;
+          const sixteenth = quarter / 4;
+          document.getElementById('noteTimes').textContent =
+            `1/4: ${quarter.toFixed(1)} ms | 1/8: ${eighth.toFixed(1)} ms | 1/16: ${sixteenth.toFixed(1)} ms`;
+        }
+      }
+    });
+
+    function reset() {
+      times = [];
+      document.getElementById('bpm').textContent = "BPM: --";
+      document.getElementById('avgBpm').textContent = "Avg BPM: --";
+      document.getElementById('noteTimes').textContent = "Note Values: --";
+    }
+  </script>
+</body>
+</html>
