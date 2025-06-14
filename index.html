@@ -39,6 +39,7 @@
 
   <div class="value" id="bpm">BPM: --</div>
   <div class="value avg-bpm" id="avgBpm">Avg BPM: --</div>
+  <div id="prevBpm" style="margin-left: 20px; color: #888;">Previous Avg BPM: --</div>
 
   <button onclick="reset()">Reset</button>
 
@@ -96,11 +97,24 @@ resetTimeout = setTimeout(() => {
 });
 
     function reset() {
-      times = [];
-      document.getElementById('bpm').textContent = "BPM: --";
-      document.getElementById('avgBpm').textContent = "Avg BPM: --";
-      document.getElementById('noteTimes').textContent = "Note Values: --";
+  if (times.length > 2) {
+    const intervals = times.slice(1).map((t, i) => t - times[i]);
+    const mean = intervals.reduce((a, b) => a + b) / intervals.length;
+    const threshold = 0.15;
+    const filtered = intervals.filter(i => Math.abs(i - mean) / mean <= threshold);
+
+    if (filtered.length > 0) {
+      const avgInterval = filtered.reduce((a, b) => a + b) / filtered.length;
+      const prevAvg = Math.round(60000 / avgInterval);
+      document.getElementById('prevBpm').textContent = `Previous Avg BPM: ${prevAvg}`;
     }
+  }
+
+  times = [];
+  document.getElementById('bpm').textContent = 'BPM: --';
+  document.getElementById('avgBpm').textContent = 'Avg BPM: --';
+  document.getElementById('noteTimes').textContent = 'Note Values: --';
+}
 
     function updateNoteValues(bpm, elementId) {
       const quarter = 60000 / bpm;
