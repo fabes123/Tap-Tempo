@@ -63,8 +63,8 @@ document.addEventListener('keydown', function (e) {
     // Clear existing reset timer and set a new one
 clearTimeout(resetTimeout);
 resetTimeout = setTimeout(() => {
-  reset(); // call the reset function after 3 seconds of inactivity
-}, 3000);
+  reset(); // call the reset function after 10 seconds of inactivity
+}, 10000);
 
     if (times.length > 2) {
       const intervals = times.slice(1).map((t, i) => t - times[i]);
