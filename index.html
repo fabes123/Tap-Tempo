@@ -4,17 +4,44 @@
   <meta charset="UTF-8" />
   <title>Tap Tempo BPM Calculator</title>
   <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-    .value { font-size: 2em; margin: 10px 0; }
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    .value {
+      font-size: 2em;
+      margin: 10px 0;
+    }
+    .small {
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 30px;
+    }
+    input[type="number"] {
+      padding: 5px;
+      font-size: 1em;
+      width: 80px;
+      margin-left: 10px;
+    }
   </style>
 </head>
 <body>
   <h1>Tap Tempo BPM Calculator</h1>
   <p>Tap the <strong>space bar</strong> to calculate tempo</p>
+
   <div class="value" id="bpm">BPM: --</div>
   <div class="value" id="avgBpm">Avg BPM: --</div>
-  <div class="value" id="noteTimes">Note Values: --</div>
+
   <button onclick="reset()">Reset</button>
+
+  <div class="small" id="noteTimes">Note Values: --</div>
+
+  <div class="small" style="margin-top: 40px;">
+    <label for="manualBpm">Type BPM:</label>
+    <input type="number" id="manualBpm" placeholder="e.g. 120" />
+  </div>
+  <div class="small" id="manualNoteTimes">Note Values (Typed BPM): --</div>
 
   <script>
     let times = [];
@@ -29,11 +56,7 @@
           document.getElementById('bpm').textContent = `BPM: ${bpm.toFixed(1)}`;
           document.getElementById('avgBpm').textContent = `Avg BPM: ${avgBpm.toFixed(1)}`;
 
-          const quarter = 60000 / avgBpm;
-          const eighth = quarter / 2;
-          const sixteenth = quarter / 4;
-          document.getElementById('noteTimes').textContent =
-            `1/4: ${quarter.toFixed(1)} ms | 1/8: ${eighth.toFixed(1)} ms | 1/16: ${sixteenth.toFixed(1)} ms`;
+          updateNoteValues(avgBpm, 'noteTimes');
         }
       }
     });
@@ -44,6 +67,25 @@
       document.getElementById('avgBpm').textContent = "Avg BPM: --";
       document.getElementById('noteTimes').textContent = "Note Values: --";
     }
+
+    function updateNoteValues(bpm, elementId) {
+      const quarter = 60000 / bpm;
+      const eighth = quarter / 2;
+      const sixteenth = quarter / 4;
+      document.getElementById(elementId).textContent =
+        `1/4: ${quarter.toFixed(1)} ms | 1/8: ${eighth.toFixed(1)} ms | 1/16: ${sixteenth.toFixed(1)} ms`;
+    }
+
+    // Handle manual BPM input
+    const manualInput = document.getElementById('manualBpm');
+    manualInput.addEventListener('input', () => {
+      const bpm = parseFloat(manualInput.value);
+      if (!isNaN(bpm) && bpm > 0) {
+        updateNoteValues(bpm, 'manualNoteTimes');
+      } else {
+        document.getElementById('manualNoteTimes').textContent = "Note Values (Typed BPM): --";
+      }
+    });
   </script>
 </body>
 </html>
