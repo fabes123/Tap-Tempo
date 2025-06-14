@@ -52,20 +52,16 @@
 
   <script>
     let times = [];
-    const maxTaps = 5;
 
-    document.addEventListener('keydown', function (e) {
-      if (e.code === 'Space') {
-        const now = Date.now();
-        times.push(now);
-        if (times.length > maxTaps) {
-          times.shift(); // keep only latest N taps
-        }
+document.addEventListener('keydown', function (e) {
+  if (e.code === 'Space') {
+    const now = Date.now();
+    times.push(now);
 
-        if (times.length > 2) {
-          const intervals = times.slice(1).map((t, i) => t - times[i]);
-          const latestBpm = 60000 / intervals[intervals.length - 1];
-          const avgBpm = Math.round(60000 / (intervals.reduce((a, b) => a + b) / intervals.length));
+    if (times.length > 2) {
+      const intervals = times.slice(1).map((t, i) => t - times[i]);
+      const latestBpm = 60000 / intervals[intervals.length - 1];
+      const avgBpm = Math.round(60000 / (intervals.reduce((a, b) => a + b) / intervals.length));
 
           document.getElementById('bpm').textContent = `BPM: ${latestBpm.toFixed(1)}`;
           document.getElementById('avgBpm').textContent = `Avg BPM: ${avgBpm}`;
