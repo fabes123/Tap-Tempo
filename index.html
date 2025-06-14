@@ -13,6 +13,10 @@
       font-size: 2em;
       margin: 10px 0;
     }
+    .avg-bpm {
+      color: #3fa34d;
+      font-weight: bold;
+    }
     .small {
       font-size: 0.9em;
       color: #555;
@@ -24,6 +28,9 @@
       width: 80px;
       margin-left: 10px;
     }
+    .note-label {
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -31,7 +38,7 @@
   <p>Tap the <strong>space bar</strong> to calculate tempo</p>
 
   <div class="value" id="bpm">BPM: --</div>
-  <div class="value" id="avgBpm">Avg BPM: --</div>
+  <div class="value avg-bpm" id="avgBpm">Avg BPM: --</div>
 
   <button onclick="reset()">Reset</button>
 
@@ -45,16 +52,23 @@
 
   <script>
     let times = [];
+    const maxTaps = 5;
+
     document.addEventListener('keydown', function (e) {
       if (e.code === 'Space') {
         const now = Date.now();
         times.push(now);
+        if (times.length > maxTaps) {
+          times.shift(); // keep only latest N taps
+        }
+
         if (times.length > 2) {
           const intervals = times.slice(1).map((t, i) => t - times[i]);
-          const bpm = 60000 / intervals[intervals.length - 1];
-          const avgBpm = 60000 / (intervals.reduce((a, b) => a + b) / intervals.length);
-          document.getElementById('bpm').textContent = `BPM: ${bpm.toFixed(1)}`;
-          document.getElementById('avgBpm').textContent = `Avg BPM: ${avgBpm.toFixed(1)}`;
+          const latestBpm = 60000 / intervals[intervals.length - 1];
+          const avgBpm = Math.round(60000 / (intervals.reduce((a, b) => a + b) / intervals.length));
+
+          document.getElementById('bpm').textContent = `BPM: ${latestBpm.toFixed(1)}`;
+          document.getElementById('avgBpm').textContent = `Avg BPM: ${avgBpm}`;
 
           updateNoteValues(avgBpm, 'noteTimes');
         }
@@ -72,11 +86,21 @@
       const quarter = 60000 / bpm;
       const eighth = quarter / 2;
       const sixteenth = quarter / 4;
-      document.getElementById(elementId).textContent =
-        `1/4: ${quarter.toFixed(1)} ms | 1/8: ${eighth.toFixed(1)} ms | 1/16: ${sixteenth.toFixed(1)} ms`;
+
+      const quarterT = quarter * 2 / 3;
+      const eighthT = eighth * 2 / 3;
+      const sixteenthT = sixteenth * 2 / 3;
+
+      document.getElementById(elementId).innerHTML =
+        `<span class="note-label">1/4:</span> ${quarter.toFixed(1)} ms | 
+         <span class="note-label">1/8:</span> ${eighth.toFixed(1)} ms | 
+         <span class="note-label">1/16:</span> ${sixteenth.toFixed(1)} ms<br>
+         <span class="note-label">1/4T:</span> ${quarterT.toFixed(1)} ms | 
+         <span class="note-label">1/8T:</span> ${eighthT.toFixed(1)} ms | 
+         <span class="note-label">1/16T:</span> ${sixteenthT.toFixed(1)} ms`;
     }
 
-    // Handle manual BPM input
+    // Manual BPM input
     const manualInput = document.getElementById('manualBpm');
     manualInput.addEventListener('input', () => {
       const bpm = parseFloat(manualInput.value);
