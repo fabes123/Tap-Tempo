@@ -52,11 +52,18 @@
 
   <script>
     let times = [];
+    let resetTimeout; // 🔄 New: for auto-reset timeout
 
 document.addEventListener('keydown', function (e) {
   if (e.code === 'Space') {
     const now = Date.now();
     times.push(now);
+
+    // Clear existing reset timer and set a new one
+clearTimeout(resetTimeout);
+resetTimeout = setTimeout(() => {
+  reset(); // call the reset function after 3 seconds of inactivity
+}, 3000);
 
     if (times.length > 2) {
       const intervals = times.slice(1).map((t, i) => t - times[i]);
