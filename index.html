@@ -60,16 +60,33 @@ document.addEventListener('keydown', function (e) {
 
     if (times.length > 2) {
       const intervals = times.slice(1).map((t, i) => t - times[i]);
+
+      const mean = intervals.reduce((a, b) => a + b) / intervals.length;
+      const threshold = 0.15; // 15% deviation allowed
+
+      const filtered = intervals.filter(i => Math.abs(i - mean) / mean <= threshold);
+
       const latestBpm = 60000 / intervals[intervals.length - 1];
-      const avgBpm = Math.round(60000 / (intervals.reduce((a, b) => a + b) / intervals.length));
+      let avgBpm;
 
-          document.getElementById('bpm').textContent = `BPM: ${latestBpm.toFixed(1)}`;
-          document.getElementById('avgBpm').textContent = `Avg BPM: ${avgBpm}`;
-
-          updateNoteValues(avgBpm, 'noteTimes');
-        }
+      if (filtered.length > 0) {
+        const avgInterval = filtered.reduce((a, b) => a + b) / filtered.length;
+        avgBpm = Math.round(60000 / avgInterval);
+      } else {
+        avgBpm = '--';
       }
-    });
+
+      document.getElementById('bpm').textContent = `BPM: ${latestBpm.toFixed(1)}`;
+      document.getElementById('avgBpm').textContent = `Avg BPM: ${avgBpm}`;
+
+      if (avgBpm !== '--') {
+        updateNoteValues(avgBpm, 'noteTimes');
+      } else {
+        document.getElementById('noteTimes').textContent = "Note Values: --";
+      }
+    }
+  }
+});
 
     function reset() {
       times = [];
